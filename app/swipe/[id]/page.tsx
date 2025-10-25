@@ -19,7 +19,7 @@ export default async function TempSwipePage({
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     // Fetch details from Google Places API
     const detailsRes = await fetch(
-      `https://places.googleapis.com/v1/places/${id}?fields=rating,priceLevel,currentOpeningHours,photos,location`,
+      `https://places.googleapis.com/v1/places/${id}?fields=rating,priceLevel,currentOpeningHours,photos,location,types`,
       {
         headers: new Headers({
           "X-Goog-Api-Key": apiKey ?? "",
@@ -53,6 +53,17 @@ export default async function TempSwipePage({
       straightLineDistanceMeters = R * c;
     }
 
+    // Get cuisine from types
+    let cuisine = "Unknown";
+    if (details.types && Array.isArray(details.types) && details.types.length > 0) {
+      // Map Google Place types to readable cuisine (simple mapping)
+      const cuisineTypes = details.types.filter((type: string) => type.endsWith('_restaurant') || type.endsWith('_food'));
+      if (cuisineTypes.length > 0) {
+        cuisine = cuisineTypes[0].replace(/_/g, ' ').replace('restaurant', '').replace('food', '').trim();
+        cuisine = cuisine.charAt(0).toUpperCase() + cuisine.slice(1);
+      }
+    }
+
     return {
       rating: details.rating ?? Math.round(Math.random() * 2 + 3),
       priceRange: details.priceLevel ?? Math.floor(Math.random() * 3) + 1,
@@ -62,6 +73,7 @@ export default async function TempSwipePage({
           ? `${details.currentOpeningHours.periods[0].open.hour}:00 - ${details.currentOpeningHours.periods[0].close?.hour ?? "?"}:00`
           : "9am - 9pm",
       image,
+      cuisine,
     };
   }
 
@@ -75,7 +87,7 @@ export default async function TempSwipePage({
         id: place.id,
         name: place.displayName?.text ?? "Unknown Name",
         image: details.image,
-        cuisine: "Unknown",
+        cuisine: details.cuisine,
         priceRange: details.priceRange,
         rating: details.rating,
         distance: `${miles.toFixed(2)} mi`,
