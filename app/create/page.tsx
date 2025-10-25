@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { createSquad } from "@/service/squad";
+import { handleSquadCreation } from "@/service/squad";
 import { ArrowLeft, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export default function CreateGroupPage() {
   const groupName = searchParams.get("name") || "";
 
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
-    null,
+    null
   );
   const [locationError, setLocationError] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
@@ -36,7 +36,7 @@ export default function CreateGroupPage() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         }),
-      (err) => setLocationError(err.message),
+      (err) => setLocationError(err.message)
     );
   }, [groupName]);
 
@@ -44,7 +44,7 @@ export default function CreateGroupPage() {
     console.log("handleCreateGroup");
     console.log(location);
     if (location) {
-      const squad = (await createSquad(location.lat, location.lng))[0];
+      const squad = (await handleSquadCreation(location.lat, location.lng))[0];
       console.log(squad);
       router.push(`${window.location.origin}/group/${squad.id}`);
     }
