@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/date-picker";
+import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -68,16 +69,14 @@ export default function CreateGroupPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="p-4 border-b">
-        <div className="max-w-md mx-auto flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/home">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          </Button>
-          <h1 className="text-xl font-semibold">Create Group</h1>
-        </div>
-      </header>
+      <Navbar>
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/home">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+        </Button>
+        <h1 className="text-xl font-semibold">Create Group</h1>
+      </Navbar>
 
       <main className="flex-1 p-4 overflow-y-auto">
         <div className="max-w-md mx-auto space-y-6">

@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Users, Heart } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Navbar } from "@/components/navbar";
 
 const CUISINE_TYPES = [
   "Italian",
@@ -40,7 +40,6 @@ export default function GroupPage() {
   const [priceRange, setPriceRange] = useState([1, 3]);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
-  const [openNow, setOpenNow] = useState(false);
 
   const toggleCuisine = (cuisine: string) => {
     setSelectedCuisines((prev) =>
@@ -64,26 +63,24 @@ export default function GroupPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="p-4 border-b">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-            </Button>
-            <div>
-              <h1 className="text-xl font-semibold">Group {groupId}</h1>
-              <p className="text-xs text-muted-foreground">
-                Set your preferences
-              </p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" className="bg-transparent">
-            <Users className="w-4 h-4 mr-2" />3
+      <Navbar>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
           </Button>
+          <div>
+            <h1 className="text-xl font-semibold">Group {groupId}</h1>
+            <p className="text-xs text-muted-foreground">
+              Set your preferences
+            </p>
+          </div>
         </div>
-      </header>
+        <Button variant="outline" size="sm" className="bg-transparent">
+          <Users className="w-4 h-4 mr-2" />3
+        </Button>
+      </Navbar>
 
       <main className="flex-1 p-4 overflow-y-auto pb-24">
         <div className="max-w-md mx-auto space-y-6">
@@ -151,16 +148,6 @@ export default function GroupPage() {
                     </Badge>
                   ))}
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Open Now</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Only show restaurants currently open
-                  </p>
-                </div>
-                <Switch checked={openNow} onCheckedChange={setOpenNow} />
               </div>
             </div>
           </Card>

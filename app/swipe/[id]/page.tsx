@@ -5,6 +5,7 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { X, Heart, RotateCcw } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Navbar } from "@/components/navbar";
 
 const MOCK_RESTAURANTS = [
   {
@@ -98,8 +99,8 @@ export default function SwipePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
-      <header className="p-4">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+      <Navbar>
+        <div className="flex items-center justify-between w-full">
           <div>
             <h1 className="text-xl font-semibold">Group {groupId}</h1>
             <p className="text-sm text-muted-foreground">
@@ -117,7 +118,7 @@ export default function SwipePage() {
             Undo
           </Button>
         </div>
-      </header>
+      </Navbar>
 
       <main className="flex-1 p-4 flex items-center justify-center">
         <div className="max-w-md w-full aspect-[3/4] relative">
