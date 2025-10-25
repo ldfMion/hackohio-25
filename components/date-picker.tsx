@@ -15,10 +15,30 @@ export function DatePicker({
   date,
   setDate,
 }: {
-  date: Date | undefined;
-  setDate: ReturnType<typeof React.useState<Date | undefined>>[1];
+  date: Date;
+  setDate: ReturnType<typeof React.useState<Date>>[1];
 }) {
   const [open, setOpen] = React.useState(false);
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      const newDate = new Date(date);
+      newDate.setHours(date.getHours());
+      newDate.setMinutes(date.getMinutes());
+      setDate(newDate);
+    }
+  };
+
+  const handleTimeChange = (time: string) => {
+    const newDate = new Date(date);
+    const [hours, minutes] = time.split(":");
+    newDate.setHours(parseInt(hours));
+    newDate.setMinutes(parseInt(minutes));
+    setDate(newDate);
+  };
+
+  const timeStr = `${formatWithLeading0(date.getHours())}:${formatWithLeading0(date.getMinutes())}`;
+  console.log(timeStr);
 
   return (
     <div className="flex gap-4 justify-stretch">
@@ -43,7 +63,7 @@ export function DatePicker({
               selected={date}
               captionLayout="dropdown"
               onSelect={(date) => {
-                setDate(date);
+                handleDateChange(date);
                 setOpen(false);
               }}
             />
@@ -57,11 +77,16 @@ export function DatePicker({
         <Input
           type="time"
           id="time-picker"
-          step="1"
-          defaultValue="10:30:00"
+          step="60"
+          value={timeStr}
+          onChange={(e) => handleTimeChange(e.target.value)}
           className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
       </div>
     </div>
   );
+}
+
+function formatWithLeading0(num: number) {
+  return num.toString().padStart(2, "0");
 }
