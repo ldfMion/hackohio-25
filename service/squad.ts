@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 
 export async function handleSquadCreation(latitude: number, longitude: number) {
   const supabase = await createClient();
@@ -40,14 +40,9 @@ export async function handleSquadCreation(latitude: number, longitude: number) {
 
 export async function addUserToSquad(
   supabase: SupabaseClient,
+  user: User,
   groupId: string,
 ) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    throw new Error("user is null");
-  }
   const { error } = await supabase
     .from("roster")
     .upsert({ squad_id: groupId, user_id: user.id });

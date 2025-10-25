@@ -7,7 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Check, Copy, Share2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const CUISINE_TYPES = [
   "Italian",
@@ -32,15 +33,17 @@ const DIETARY_PREFERENCES = [
 
 export default function GroupPage() {
   const params = useParams();
-  const router = useRouter();
   const groupId = params.id as string;
 
   const [priceRange, setPriceRange] = useState([1, 3]);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${window.location.origin}/group/${groupId}`;
+  useEffect(() => {
+    setShareUrl(`${window.location.origin}/group/${groupId}`);
+  }, []);
 
   const toggleCuisine = (cuisine: string) => {
     setSelectedCuisines((prev) =>
@@ -56,10 +59,6 @@ export default function GroupPage() {
         ? prev.filter((d) => d !== dietary)
         : [...prev, dietary],
     );
-  };
-
-  const handleStartSwiping = () => {
-    router.push(`/swipe/${groupId}`);
   };
 
   const handleCopyUrl = async () => {
@@ -211,8 +210,8 @@ export default function GroupPage() {
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
         <div className="max-w-md mx-auto">
-          <Button className="w-full" size="lg" onClick={handleStartSwiping}>
-            Start Swiping
+          <Button className="w-full" size="lg" asChild>
+            <Link href={`/swipe/${groupId}`}>Start Swiping</Link>
           </Button>
         </div>
       </div>

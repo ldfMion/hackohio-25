@@ -5,7 +5,13 @@ import { getRestaurants } from "@/lib/places";
 
 export async function processSwipingStart(squadId: string) {
   const supabase = await createClient();
-  await addUserToSquad(supabase, squadId);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("user is null");
+  }
+  await addUserToSquad(supabase, user, squadId);
   const squad = await getSquad(supabase, squadId);
   const savedRestaurants = await getSavedRestaurants(supabase, squadId);
   if (savedRestaurants.length > 0) {
@@ -43,8 +49,11 @@ async function saveRestaurants(
 ) {
   const { data, error } = await supabase
     .from("restaurant")
-    .upsert(restaurants.map((r) => ({ squad_id: squadId, id: r.id })))
+    .insert(restaurants.map((r) => ({ squad_id: squadId, id: r.id })))
     .select();
+  if (error) {
+    throw error;
+  }
   return data as Restaurant[];
 }
 
