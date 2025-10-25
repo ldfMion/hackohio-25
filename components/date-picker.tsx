@@ -16,7 +16,7 @@ export function DatePicker({
   setDate,
 }: {
   date: Date;
-  setDate: ReturnType<typeof React.useState<Date>>[1];
+  setDate: (date: Date) => void;
 }) {
   const [open, setOpen] = React.useState(false);
 

@@ -20,7 +20,7 @@ export default function CreateGroupPage() {
     null,
   );
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
 

@@ -69,12 +69,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              className="w-full bg-transparent"
-              size="lg"
-              asChild
-            >
+            <Button variant="outline" className="w-full" size="lg" asChild>
               <Link href="/join">Join Existing Group</Link>
             </Button>
           </Card>
