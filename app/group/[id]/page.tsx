@@ -5,11 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, Heart, Check, Copy, Share2 } from "lucide-react";
-import Link from "next/link";
+import { Heart, Check, Copy, Share2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Navbar } from "@/components/navbar";
+import { useState } from "react";
 
 const CUISINE_TYPES = [
   "Italian",
