@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, Heart } from "lucide-react";
+import { ArrowLeft, Users, Heart, Check, Copy, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 
 const CUISINE_TYPES = [
@@ -40,6 +40,9 @@ export default function GroupPage() {
   const [priceRange, setPriceRange] = useState([1, 3]);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
+
+  const shareUrl = `${window.location.origin}/group/${groupId}`;
 
   const toggleCuisine = (cuisine: string) => {
     setSelectedCuisines((prev) =>
@@ -61,29 +64,69 @@ export default function GroupPage() {
     router.push(`/swipe/${groupId}`);
   };
 
+  const handleCopyUrl = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: `Join Group`,
+        text: "Join this group to collaborate on dining plans!",
+        url: shareUrl,
+      });
+    } catch (err) {
+      console.error("Share failed:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold">Group {groupId}</h1>
-            <p className="text-xs text-muted-foreground">
-              Set your preferences
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" className="bg-transparent">
-          <Users className="w-4 h-4 mr-2" />3
-        </Button>
-      </Navbar>
-
       <main className="flex-1 p-4 overflow-y-auto pb-24">
         <div className="max-w-md mx-auto space-y-6">
+          <Card className="p-6 space-y-4">
+            <div className="space-y-2">
+              <h3 className="font-semibold">Share with your group</h3>
+              <p className="text-sm text-muted-foreground">
+                Share this link with friends so they can join your group
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-muted rounded-lg p-3 overflow-hidden">
+                <p className="text-sm font-mono text-center truncate">
+                  {shareUrl}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyUrl}
+                  className="h-12 w-12"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
+                </Button>
+
+                {navigator.canShare && navigator.canShare() && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleShare}
+                    className="h-12 w-12"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Card>
           <Card className="p-6 space-y-6">
             <div className="space-y-2">
               <h2 className="text-lg font-semibold">Your Preferences</h2>
