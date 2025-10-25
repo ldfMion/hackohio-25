@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePicker } from "@/components/date-picker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,8 +16,7 @@ function CreateGroupContent() {
   const groupName = searchParams.get("name") || "";
 
   const [location, setLocation] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [groupCode, setGroupCode] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -75,28 +75,11 @@ function CreateGroupContent() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date (optional)</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time">Time (optional)</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                  />
-                </div>
+              <div className="">
+                <DatePicker date={date} setDate={setDate} />
               </div>
               <p className="text-xs text-muted-foreground">
-                Only show restaurants available at this time
+                We'll only show restaurants available at this time
               </p>
             </div>
           </Card>
