@@ -54,7 +54,7 @@ export default function CreateGroupPage() {
     <div className="min-h-screen flex flex-col">
       <Navbar>
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/home">
+          <Link href="/">
             <ArrowLeft className="w-5 h-5" />
           </Link>
         </Button>
