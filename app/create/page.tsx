@@ -3,39 +3,67 @@
 import { DatePicker } from "@/components/date-picker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { ArrowLeft, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 
-function CreateGroupContent() {
+export default function CreateGroupPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const groupName = searchParams.get("name") || "";
 
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [groupCode, setGroupCode] = useState("");
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
+  // Generate group link once
   useEffect(() => {
-    // Generate a random 6-character group code
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setGroupCode(code);
-  }, []);
+    const url = `${window.location.origin}/group/${code}`;
+    setShareUrl(url);
 
-  const handleCopyCode = async () => {
-    await navigator.clipboard.writeText(groupCode);
+    if (!("geolocation" in navigator)) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        setLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => setLocationError(err.message),
+    );
+  }, [groupName]);
+
+  const handleCopyUrl = async () => {
+    await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleCreateGroup = () => {
-    if (location.trim()) {
-      router.push(`/group/${groupCode}`);
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: `Join ${groupName}`,
+        text: "Join this group to collaborate on dining plans!",
+        url: shareUrl,
+      });
+    } catch (err) {
+      console.error("Share failed:", err);
     }
+  };
+
+  const handleCreateGroup = () => {
+    router.push(shareUrl);
   };
 
   return (
@@ -43,7 +71,7 @@ function CreateGroupContent() {
       <header className="p-4 border-b">
         <div className="max-w-md mx-auto flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/">
+            <Link href="/home">
               <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>
@@ -63,19 +91,19 @@ function CreateGroupContent() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  placeholder="City or neighborhood"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Restaurants will be shown near this location
-                </p>
+                <Label>Location</Label>
+                <div>
+                  {!location && !locationError && (
+                    <p className="text-muted-foreground">
+                      <Spinner /> Getting your location...
+                    </p>
+                  )}
+                  {location && JSON.stringify(location)}
+                  {locationError && <p>{locationError}</p>}
+                </div>
               </div>
 
-              <div className="">
+              <div>
                 <DatePicker date={date} setDate={setDate} />
               </div>
               <p className="text-xs text-muted-foreground">
@@ -88,28 +116,41 @@ function CreateGroupContent() {
             <div className="space-y-2">
               <h3 className="font-semibold">Share with your group</h3>
               <p className="text-sm text-muted-foreground">
-                Share this code with friends so they can join
+                Share this link with friends so they can join your group
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-muted rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold font-mono tracking-widest">
-                  {groupCode}
+              <div className="flex-1 bg-muted rounded-lg p-3 overflow-hidden">
+                <p className="text-sm font-mono text-center truncate">
+                  {shareUrl}
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleCopyCode}
-                className="h-14 w-14 bg-transparent"
-              >
-                {copied ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  <Copy className="w-5 h-5" />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyUrl}
+                  className="h-12 w-12"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
+                </Button>
+
+                {navigator.canShare && navigator.canShare() && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleShare}
+                    className="h-12 w-12"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
                 )}
-              </Button>
+              </div>
             </div>
           </Card>
 
@@ -117,20 +158,12 @@ function CreateGroupContent() {
             className="w-full"
             size="lg"
             onClick={handleCreateGroup}
-            disabled={!location.trim()}
+            disabled={!location}
           >
             Create Group & Continue
           </Button>
         </div>
       </main>
     </div>
-  );
-}
-
-export default function CreatePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CreateGroupContent />
-    </Suspense>
   );
 }
