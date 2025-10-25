@@ -7,61 +7,19 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const MOCK_RESTAURANTS = [
-  {
-    id: "1",
-    name: "Bella Italia",
-    cuisine: "Italian",
-    priceRange: 2,
-    rating: 4.5,
-    distance: "0.5 miles away",
-    hours: "Open until 10:00 PM",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: "2",
-    name: "Sushi Palace",
-    cuisine: "Japanese",
-    priceRange: 3,
-    rating: 4.8,
-    distance: "1.2 miles away",
-    hours: "Open until 11:00 PM",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: "3",
-    name: "Taco Fiesta",
-    cuisine: "Mexican",
-    priceRange: 1,
-    rating: 4.3,
-    distance: "0.8 miles away",
-    hours: "Open until 9:00 PM",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: "4",
-    name: "Le Petit Bistro",
-    cuisine: "French",
-    priceRange: 4,
-    rating: 4.7,
-    distance: "2.1 miles away",
-    hours: "Open until 10:30 PM",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: "5",
-    name: "Spice Garden",
-    cuisine: "Indian",
-    priceRange: 2,
-    rating: 4.6,
-    distance: "1.5 miles away",
-    hours: "Open until 10:00 PM",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-];
 
-export function SwipeView({ restaurantIds }: { restaurantIds: string[] }) {
-  console.log("restaurantIds", restaurantIds);
+export type SwipeRestaurant = {
+  id: string;
+  name: string;
+  image?: string;
+  cuisine?: string;
+  priceRange?: number;
+  rating?: number;
+  distance?: string;
+  hours?: string;
+};
+
+export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
   const params = useParams();
   const router = useRouter();
   const groupId = params.id as string;
@@ -71,7 +29,7 @@ export function SwipeView({ restaurantIds }: { restaurantIds: string[] }) {
     Array<{ id: string; direction: "left" | "right" }>
   >([]);
 
-  const currentRestaurant = MOCK_RESTAURANTS[currentIndex];
+  const currentRestaurant = restaurants[currentIndex];
 
   const handleSwipe = (direction: "left" | "right") => {
     if (!currentRestaurant) return;
@@ -81,7 +39,7 @@ export function SwipeView({ restaurantIds }: { restaurantIds: string[] }) {
       { id: currentRestaurant.id, direction },
     ]);
 
-    if (currentIndex < MOCK_RESTAURANTS.length - 1) {
+    if (currentIndex < restaurants.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       router.push(`/results/${groupId}`);
@@ -105,7 +63,7 @@ export function SwipeView({ restaurantIds }: { restaurantIds: string[] }) {
           <div>
             <h1 className="text-xl font-semibold">Group {groupId}</h1>
             <p className="text-sm text-muted-foreground">
-              {currentIndex + 1} / {MOCK_RESTAURANTS.length}
+              {currentIndex + 1} / {restaurants.length}
             </p>
           </div>
           <Button
@@ -123,11 +81,20 @@ export function SwipeView({ restaurantIds }: { restaurantIds: string[] }) {
 
       <main className="flex-1 p-4 flex items-center justify-center">
         <div className="max-w-md w-full aspect-[3/4] relative">
-          {MOCK_RESTAURANTS.slice(currentIndex, currentIndex + 2).map(
+          {restaurants.slice(currentIndex, currentIndex + 2).map(
             (restaurant, index) => (
               <RestaurantCard
                 key={restaurant.id}
-                restaurant={restaurant}
+                restaurant={{
+                  id: restaurant.id,
+                  name: restaurant.name ?? "Unknown Name",
+                  cuisine: restaurant.cuisine ?? "Unknown",
+                  priceRange: restaurant.priceRange ?? 2,
+                  rating: restaurant.rating ?? 4.0,
+                  distance: restaurant.distance ?? "N/A",
+                  hours: restaurant.hours ?? "N/A",
+                  image: restaurant.image ?? "/placeholder.svg?height=400&width=600",
+                }}
                 onSwipe={handleSwipe}
                 style={{
                   zIndex: 2 - index,
