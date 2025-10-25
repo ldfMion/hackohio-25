@@ -3,20 +3,23 @@
 import { DatePicker } from "@/components/date-picker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 
-function CreateGroupContent() {
+export default function CreateGroupPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const groupName = searchParams.get("name") || "";
 
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [groupCode, setGroupCode] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -24,6 +27,20 @@ function CreateGroupContent() {
     // Generate a random 6-character group code
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     setGroupCode(code);
+
+    if (!("geolocation" in navigator)) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        setLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => setLocationError(err.message),
+    );
   }, []);
 
   const handleCopyCode = async () => {
@@ -33,9 +50,7 @@ function CreateGroupContent() {
   };
 
   const handleCreateGroup = () => {
-    if (location.trim()) {
-      router.push(`/group/${groupCode}`);
-    }
+    router.push(`/group/${groupCode}`);
   };
 
   return (
@@ -43,7 +58,7 @@ function CreateGroupContent() {
       <header className="p-4 border-b">
         <div className="max-w-md mx-auto flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/">
+            <Link href="/home">
               <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>
@@ -63,16 +78,16 @@ function CreateGroupContent() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  placeholder="City or neighborhood"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Restaurants will be shown near this location
-                </p>
+                <Label>Location</Label>
+                <div>
+                  {!location && !locationError && (
+                    <p className="text-muted-foreground">
+                      <Spinner /> Getting your location...
+                    </p>
+                  )}
+                  {location && JSON.stringify(location)}
+                  {locationError && <p>{locationError}</p>}
+                </div>
               </div>
 
               <div className="">
@@ -117,20 +132,12 @@ function CreateGroupContent() {
             className="w-full"
             size="lg"
             onClick={handleCreateGroup}
-            disabled={!location.trim()}
+            disabled={!location}
           >
             Create Group & Continue
           </Button>
         </div>
       </main>
     </div>
-  );
-}
-
-export default function CreatePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CreateGroupContent />
-    </Suspense>
   );
 }
