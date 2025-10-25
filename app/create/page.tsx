@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -20,13 +20,14 @@ export default function CreateGroupPage() {
   );
   const [locationError, setLocationError] = useState<string | null>(null);
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [groupCode, setGroupCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
+  // Generate group link once
   useEffect(() => {
-    // Generate a random 6-character group code
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setGroupCode(code);
+    const url = `${window.location.origin}/group/${code}`;
+    setShareUrl(url);
 
     if (!("geolocation" in navigator)) {
       setLocationError("Geolocation is not supported by your browser.");
@@ -41,16 +42,28 @@ export default function CreateGroupPage() {
         }),
       (err) => setLocationError(err.message),
     );
-  }, []);
+  }, [groupName]);
 
-  const handleCopyCode = async () => {
-    await navigator.clipboard.writeText(groupCode);
+  const handleCopyUrl = async () => {
+    await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: `Join ${groupName}`,
+        text: "Join this group to collaborate on dining plans!",
+        url: shareUrl,
+      });
+    } catch (err) {
+      console.error("Share failed:", err);
+    }
+  };
+
   const handleCreateGroup = () => {
-    router.push(`/group/${groupCode}`);
+    router.push(shareUrl);
   };
 
   return (
@@ -90,7 +103,7 @@ export default function CreateGroupPage() {
                 </div>
               </div>
 
-              <div className="">
+              <div>
                 <DatePicker date={date} setDate={setDate} />
               </div>
               <p className="text-xs text-muted-foreground">
@@ -103,28 +116,41 @@ export default function CreateGroupPage() {
             <div className="space-y-2">
               <h3 className="font-semibold">Share with your group</h3>
               <p className="text-sm text-muted-foreground">
-                Share this code with friends so they can join
+                Share this link with friends so they can join your group
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-muted rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold font-mono tracking-widest">
-                  {groupCode}
+              <div className="flex-1 bg-muted rounded-lg p-3 overflow-hidden">
+                <p className="text-sm font-mono text-center truncate">
+                  {shareUrl}
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleCopyCode}
-                className="h-14 w-14 bg-transparent"
-              >
-                {copied ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  <Copy className="w-5 h-5" />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyUrl}
+                  className="h-12 w-12"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
+                </Button>
+
+                {navigator.canShare && navigator.canShare() && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleShare}
+                    className="h-12 w-12"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
                 )}
-              </Button>
+              </div>
             </div>
           </Card>
 
