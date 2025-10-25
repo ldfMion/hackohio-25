@@ -7,16 +7,23 @@ import { Label } from "@/components/ui/label";
 import { UtensilsCrossed, Users, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function HomePage() {
   const [groupName, setGroupName] = useState("");
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="p-4 border-b">
+      <header className="top-bar">
         <div className="max-w-md mx-auto flex items-center gap-2">
-          <UtensilsCrossed className="w-8 h-8 text-primary" />
-          <h1 className="text-2xl font-bold">Where 2 Eat</h1>
+          <Image
+            src="/images/Where2Eat.png"
+            alt="Where 2 Eat Logo"
+            width={160} // Increased width
+            height={160} // Increased height
+            className="w-16 h-16 object-contain" // Ensures the image fits within the top bar height
+          />
+          <h1 className="text-2xl font-bold">Where2Eat</h1>
         </div>
       </header>
 
@@ -79,12 +86,6 @@ export default function HomePage() {
                 <Users className="w-6 h-6 text-primary" />
               </div>
               <p className="text-sm text-muted-foreground">Create groups</p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <UtensilsCrossed className="w-6 h-6" />
-              </div>
-              <p className="text-sm text-muted-foreground">Swipe together</p>
             </div>
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
