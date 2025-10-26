@@ -63,12 +63,39 @@ async function saveSwipe(
     throw new Error(`Error fetching current user: ${userError?.message}`);
   }
 
-  const savedSwipe = await supabase.from("swipe").insert({
+  const { data, error } = await supabase.from("swipe").insert({
     user_id: user.id,
     squad_id: squadId,
     restaurant_id: restaurantId,
     swipe: swipe,
   });
+
+  if (error) {
+    throw new Error(`Error saving swipe: ${error.message}`);
+  }
+}
+
+async function getAllSwipesForGroup(supabase: SupabaseClient, squadId: string) {
+  const { data, error } = await supabase
+    .from("swipe")
+    .select(
+      `
+      id,
+      user_id,
+      squad_id,
+      restaurant_id,
+      swipe,
+      created_at
+    `
+    )
+    .eq("squad_id", squadId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Error fetching swipes: ${error.message}`);
+  }
+
+  return data;
 }
 
 type Restaurant = {
@@ -78,7 +105,7 @@ type Restaurant = {
 };
 
 enum Swipe {
-  Left,
-  Right,
-  Skip,
+  left,
+  right,
+  skip,
 }
