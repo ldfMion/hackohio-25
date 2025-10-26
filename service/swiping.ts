@@ -1,3 +1,4 @@
+"use server";
 import { createClient } from "@/lib/supabase/server";
 import { addUserToSquad, getSquad } from "./squad";
 import { getRestaurants } from "@/lib/places";
@@ -32,11 +33,11 @@ export async function processSwipingStart(squadId: string) {
 }
 
 export async function saveSwipe(
-  supabase: SupabaseClient,
   squadId: string,
   restaurantId: string,
   swipe: Swipe,
 ) {
+  const supabase = await createClient();
   const {
     data: { user },
     error: userError,
@@ -46,7 +47,7 @@ export async function saveSwipe(
     throw new Error(`Error fetching current user: ${userError?.message}`);
   }
 
-  const { data, error } = await supabase.from("swipe").insert({
+  const { error } = await supabase.from("swipe").insert({
     user_id: user.id,
     squad_id: squadId,
     restaurant_id: restaurantId,
@@ -84,8 +85,4 @@ export async function getAllSwipesForGroup(
   return data;
 }
 
-enum Swipe {
-  left,
-  right,
-  skip,
-}
+type Swipe = "left" | "right";

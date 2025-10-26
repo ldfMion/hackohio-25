@@ -4,7 +4,7 @@ import type React from "react";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, Star } from "lucide-react";
+import { MapPin, DollarSign, Star } from "lucide-react";
 import { useState, useRef } from "react";
 
 interface RestaurantCardProps {
@@ -12,7 +12,7 @@ interface RestaurantCardProps {
     id: string;
     name: string;
     cuisine: string[];
-    priceRange?: number;
+    priceRange?: string;
     rating?: number;
     distance?: string;
     hours: string;
@@ -134,7 +134,7 @@ export function RestaurantCard({
               {restaurant.priceRange && (
                 <div className="flex items-center gap-1">
                   <DollarSign className="w-4 h-4" />
-                  <span>{"$".repeat(restaurant.priceRange)}</span>
+                  <span>{restaurant.priceRange}</span>
                 </div>
               )}
             </div>

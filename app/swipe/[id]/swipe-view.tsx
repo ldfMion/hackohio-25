@@ -6,12 +6,13 @@ import { RotateCcw, X, Heart } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { saveSwipe } from "@/service/swiping";
 
 export type SwipeRestaurant = {
   id: string;
   name: string;
   image?: string;
-  cuisine?: string[];
+  cuisine: string[];
   priceRange?: string;
   rating?: number;
   distance?: string;
@@ -37,6 +38,8 @@ export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
       ...swipedRestaurants,
       { id: currentRestaurant.id, direction },
     ]);
+
+    saveSwipe(groupId, currentRestaurant.id, direction);
 
     if (currentIndex < restaurants.length - 1) {
       setCurrentIndex(currentIndex + 1);
