@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSavedRestaurants, Restaurant } from "./restaurant";
 import { getUsersFromSquad } from "./squad";
-import { getAllSwipesForGroup } from "./swiping";
+import { getAllSwipesForSquad } from "./swiping";
 
 export async function getMatches(groupId: string): Promise<{
   perfectMatches: RestaurantMatch[];
@@ -9,7 +9,7 @@ export async function getMatches(groupId: string): Promise<{
   numUsers: number;
 }> {
   const supabase = await createClient();
-  const swipes = await getAllSwipesForGroup(supabase, groupId);
+  const swipes = await getAllSwipesForSquad(supabase, groupId);
   const users = await getUsersFromSquad(supabase, groupId);
   console.log("users in squad");
   console.log(users);

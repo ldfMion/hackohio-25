@@ -25,7 +25,7 @@ export async function processSwipingStart(squadId: string) {
   const addedRestaurants = await saveRestaurants(
     supabase,
     newRestaurants.map((r) => ({ id: r.id, data: r })),
-    squadId
+    squadId,
   );
   console.log("added restaurants");
   console.log(addedRestaurants);
@@ -59,7 +59,10 @@ export async function saveSwipe(
   }
 }
 
-async function getAllSwipesForSquad(supabase: SupabaseClient, squadId: string) {
+export async function getAllSwipesForSquad(
+  supabase: SupabaseClient,
+  squadId: string,
+) {
   const { data, error } = await supabase
     .from("swipe")
     .select()
