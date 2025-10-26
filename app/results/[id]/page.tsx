@@ -122,6 +122,7 @@ function RestaurantResult({
   isPerfectMatch: boolean;
   numUsers: number;
 }) {
+  console.log(restaurant);
   return (
     <Card className="overflow-hidden">
       <div className="flex gap-4 p-4">
@@ -163,7 +164,7 @@ function RestaurantResult({
           <div className="flex items-center gap-1 text-xs">
             <Users className="w-3 h-3 text-primary" />
             <span className="font-medium">
-              {restaurant.votes.length}/{numUsers} members liked this
+              {restaurant.likes}/{numUsers} members liked this
             </span>
           </div>
         </div>

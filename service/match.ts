@@ -31,11 +31,9 @@ export async function getMatches(groupId: string): Promise<{
   console.log(restaurantsWithVotes);
   console.log("num users", numUsers);
   return {
-    perfectMatches: restaurantsWithVotes.filter(
-      (r) => r.votes.length == numUsers,
-    ),
+    perfectMatches: restaurantsWithVotes.filter((r) => r.likes === numUsers),
     majorityMatches: restaurantsWithVotes.filter(
-      (r) => r.votes.length > numUsers / 2,
+      (r) => r.likes > numUsers / 2 && r.likes !== numUsers,
     ),
     numUsers,
   };
@@ -43,6 +41,8 @@ export async function getMatches(groupId: string): Promise<{
 
 export type RestaurantMatch = Restaurant & {
   image: string;
+  likes: number;
+  dislikes: number;
   votes: {
     user: string;
     direction: "right" | "left";
