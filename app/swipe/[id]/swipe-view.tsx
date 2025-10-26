@@ -11,7 +11,7 @@ export type SwipeRestaurant = {
   id: string;
   name: string;
   image?: string;
-  cuisine?: string;
+  cuisine?: string[];
   priceRange?: string;
   rating?: number;
   distance?: string;
@@ -88,9 +88,9 @@ export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
                 restaurant={{
                   id: restaurant.id,
                   name: restaurant.name ?? "Unknown Name",
-                  cuisine: restaurant.cuisine ?? "Unknown",
-                  priceRange: restaurant.priceRange ?? 2,
-                  rating: restaurant.rating ?? 4.0,
+                  cuisine: restaurant.cuisine,
+                  priceRange: restaurant.priceRange,
+                  rating: restaurant.rating,
                   distance: restaurant.distance ?? "N/A",
                   hours: restaurant.hours ?? "N/A",
                   image:

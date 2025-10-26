@@ -11,10 +11,10 @@ interface RestaurantCardProps {
   restaurant: {
     id: string;
     name: string;
-    cuisine: string;
-    priceRange: number;
-    rating: number;
-    distance: string;
+    cuisine: string[];
+    priceRange?: number;
+    rating?: number;
+    distance?: string;
     hours: string;
     image: string;
   };
@@ -112,31 +112,37 @@ export function RestaurantCard({
         </div>
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start flex-col justify-between gap-2">
               <h3 className="text-2xl font-bold leading-tight">
                 {restaurant.name}
               </h3>
-              <Badge variant="secondary">{restaurant.cuisine}</Badge>
+              <div className="flex flex-row gap-1 flex-wrap">
+                {restaurant.cuisine.map((c) => (
+                  <Badge variant="secondary" key={c} className="text-nowrap">
+                    {c}
+                  </Badge>
+                ))}
+              </div>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-primary text-primary" />
-                <span>{restaurant.rating}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <DollarSign className="w-4 h-4" />
-                <span>{"$".repeat(restaurant.priceRange)}</span>
-              </div>
+              {restaurant.rating && (
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-primary text-primary" />
+                  <span>{restaurant.rating}</span>
+                </div>
+              )}
+              {restaurant.priceRange && (
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  <span>{"$".repeat(restaurant.priceRange)}</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="w-4 h-4" />
               <span>{restaurant.distance}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span>{restaurant.hours}</span>
             </div>
           </div>
         </div>
