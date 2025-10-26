@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { addUserToSquad, getSquad } from "./squad";
 import { getRestaurants } from "@/lib/places";
 import { getSavedRestaurants, saveRestaurants } from "./restaurant";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function processSwipingStart(squadId: string) {
   const supabase = await createClient();
@@ -30,38 +31,11 @@ export async function processSwipingStart(squadId: string) {
   return addedRestaurants;
 }
 
-async function getSavedRestaurants(supabase: SupabaseClient, squadId: string) {
-  const { data, error } = await supabase
-    .from("restaurant")
-    .select(`id`)
-    .eq("squad_id", squadId);
-  if (error) {
-    throw error;
-  }
-
-  return data as { id: string }[];
-}
-
-async function saveRestaurants(
-  supabase: SupabaseClient,
-  restaurants: Readonly<{ id: string }[]>,
-  squadId: string
-) {
-  const { data, error } = await supabase
-    .from("restaurant")
-    .insert(restaurants.map((r) => ({ squad_id: squadId, id: r.id })))
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data as Restaurant[];
-}
-
-async function saveSwipe(
+export async function saveSwipe(
   supabase: SupabaseClient,
   squadId: string,
   restaurantId: string,
-  swipe: Swipe
+  swipe: Swipe,
 ) {
   const {
     data: { user },
@@ -84,7 +58,10 @@ async function saveSwipe(
   }
 }
 
-async function getAllSwipesForGroup(supabase: SupabaseClient, squadId: string) {
+export async function getAllSwipesForGroup(
+  supabase: SupabaseClient,
+  squadId: string,
+) {
   const { data, error } = await supabase
     .from("swipe")
     .select(
@@ -95,7 +72,7 @@ async function getAllSwipesForGroup(supabase: SupabaseClient, squadId: string) {
       restaurant_id,
       swipe,
       created_at
-    `
+    `,
     )
     .eq("squad_id", squadId)
     .order("created_at", { ascending: false });
@@ -106,12 +83,6 @@ async function getAllSwipesForGroup(supabase: SupabaseClient, squadId: string) {
 
   return data;
 }
-
-type Restaurant = {
-  id: string;
-  created_at: string;
-  squad_id: string;
-};
 
 enum Swipe {
   left,
