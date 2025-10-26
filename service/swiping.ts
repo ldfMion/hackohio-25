@@ -35,7 +35,7 @@ export async function processSwipingStart(squadId: string) {
 export async function saveSwipe(
   squadId: string,
   restaurantId: string,
-  swipe: Swipe
+  swipe: Swipe["swipe"],
 ) {
   const supabase = await createClient();
   const {
@@ -62,16 +62,7 @@ export async function saveSwipe(
 async function getAllSwipesForSquad(supabase: SupabaseClient, squadId: string) {
   const { data, error } = await supabase
     .from("swipe")
-    .select(
-      `
-      id,
-      user_id,
-      squad_id,
-      restaurant_id,
-      swipe,
-      created_at
-    `
-    )
+    .select()
     .eq("squad_id", squadId)
     .order("created_at", { ascending: false });
 
@@ -79,7 +70,14 @@ async function getAllSwipesForSquad(supabase: SupabaseClient, squadId: string) {
     throw new Error(`Error fetching swipes: ${error.message}`);
   }
 
-  return data;
+  return data as Swipe[];
 }
 
-type Swipe = "left" | "right";
+type Swipe = {
+  swipe: "left" | "right";
+  id: number;
+  squad_id: string;
+  user_id: string;
+  restaurant_id: string;
+  created_ad: string;
+};

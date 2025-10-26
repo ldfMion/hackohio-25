@@ -35,7 +35,7 @@ export async function saveRestaurants(
   return data as Restaurant[];
 }
 
-type Restaurant = {
+export type Restaurant = {
   id: string;
   created_at: string;
   squad_id: string;

@@ -43,11 +43,21 @@ export async function addUserToSquad(
   user: User,
   groupId: string,
 ) {
-  const { error } = await supabase
+  const { data, error: findError } = await supabase
     .from("roster")
-    .upsert({ squad_id: groupId, user_id: user.id });
-  if (error) {
-    throw error;
+    .select()
+    .eq("squad_id", groupId)
+    .eq("user_id", user.id);
+  if (findError) {
+    throw findError;
+  }
+  if (data!.length <= 0) {
+    const { error } = await supabase
+      .from("roster")
+      .insert({ squad_id: groupId, user_id: user.id });
+    if (error) {
+      throw error;
+    }
   }
 }
 
@@ -70,3 +80,17 @@ type Squad = {
   latitude: number;
   longitude: number;
 };
+
+export async function getUsersFromSquad(
+  supabase: SupabaseClient,
+  squadId: string,
+) {
+  const { data, error } = await supabase
+    .from("roster")
+    .select()
+    .eq("squad_id", squadId);
+  if (error) {
+    throw error;
+  }
+  return data as { user_id: string }[];
+}

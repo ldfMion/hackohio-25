@@ -1,160 +1,21 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  MapPin,
-  Clock,
-  DollarSign,
-  Star,
-  Heart,
-  Users,
-  PartyPopper,
-} from "lucide-react";
+import { DollarSign, Star, Heart, Users, PartyPopper } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { getMatches, RestaurantMatch } from "@/service/match";
+import { parseTypes } from "@/lib/restaurant-types";
 
-const PERFECT_MATCHES = [
-  {
-    id: "1",
-    name: "Bella Italia",
-    cuisine: "Italian",
-    priceRange: 2,
-    rating: 4.5,
-    distance: "0.5 miles away",
-    hours: "Open until 10:00 PM",
-    image: "/placeholder.svg?height=300&width=400",
-    votes: 3,
-    totalMembers: 3,
-  },
-];
-
-const MAJORITY_MATCHES = [
-  {
-    id: "2",
-    name: "Sushi Palace",
-    cuisine: "Japanese",
-    priceRange: 3,
-    rating: 4.8,
-    distance: "1.2 miles away",
-    hours: "Open until 11:00 PM",
-    image: "/placeholder.svg?height=300&width=400",
-    votes: 2,
-    totalMembers: 3,
-  },
-  {
-    id: "5",
-    name: "Spice Garden",
-    cuisine: "Indian",
-    priceRange: 2,
-    rating: 4.6,
-    distance: "1.5 miles away",
-    hours: "Open until 10:00 PM",
-    image: "/placeholder.svg?height=300&width=400",
-    votes: 2,
-    totalMembers: 3,
-  },
-];
-
-interface RestaurantResultProps {
-  restaurant: {
-    id: string;
-    name: string;
-    cuisine: string;
-    priceRange: number;
-    rating: number;
-    distance: string;
-    hours: string;
-    image: string;
-    votes: number;
-    totalMembers: number;
-    voters?: Array<{
-      user: string;
-      direction: "right" | "left";
-    }>;
-  };
-  isPerfectMatch?: boolean;
-}
-
-function RestaurantResult({
-  restaurant,
-  isPerfectMatch = false,
-}: RestaurantResultProps) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="flex gap-4 p-4">
-        <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-          <img
-            src={restaurant.image || "/placeholder.svg"}
-            alt={restaurant.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="space-y-1">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold leading-tight">{restaurant.name}</h3>
-              {isPerfectMatch && (
-                <PartyPopper className="w-5 h-5 text-primary flex-shrink-0" />
-              )}
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="secondary" className="text-xs">
-                {restaurant.cuisine}
-              </Badge>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Star className="w-3 h-3 fill-primary text-primary" />
-                <span>{restaurant.rating}</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <DollarSign className="w-3 h-3" />
-                <span>{"$".repeat(restaurant.priceRange)}</span>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-1 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              <span>{restaurant.distance}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{restaurant.hours}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 text-xs">
-            <Users className="w-3 h-3 text-primary" />
-            <span className="font-medium">
-              {restaurant.votes}/{restaurant.totalMembers} members liked this
-            </span>
-          </div>
-          {/* Votes by users */}
-          {restaurant.voters && restaurant.voters.length > 0 && (
-            <div className="mt-2 text-xs">
-              <span className="font-semibold">Votes:</span>
-              <ul className="ml-2">
-                {restaurant.voters.map((voter) => (
-                  <li key={voter.user} className="flex items-center gap-1">
-                    <span>{voter.user}</span>
-                    <span>
-                      {voter.direction === "right" ? "👍" : "👎"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-export default function ResultsPage() {
-  const params = useParams();
-  const groupId = params.id as string;
-
+export default async function ResultsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const groupId = (await params).id;
+  const { majorityMatches, perfectMatches, numUsers } =
+    await getMatches(groupId);
+  console.log(majorityMatches);
+  console.log(perfectMatches);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="p-4 border-b">
@@ -166,7 +27,7 @@ export default function ResultsPage() {
 
       <main className="flex-1 p-4 overflow-y-auto pb-24">
         <div className="max-w-md mx-auto space-y-6">
-          {PERFECT_MATCHES.length > 0 && (
+          {perfectMatches.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Heart className="w-5 h-5 text-primary fill-primary" />
@@ -180,17 +41,18 @@ export default function ResultsPage() {
                   <div>
                     <h3 className="font-semibold">Everyone agrees!</h3>
                     <p className="text-sm text-muted-foreground">
-                      All {PERFECT_MATCHES[0].totalMembers} members liked these
+                      All {perfectMatches[0].likes} members liked these
                       restaurants
                     </p>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {PERFECT_MATCHES.map((restaurant) => (
+                  {perfectMatches.map((restaurant) => (
                     <RestaurantResult
                       key={restaurant.id}
                       restaurant={restaurant}
                       isPerfectMatch
+                      numUsers={numUsers}
                     />
                   ))}
                 </div>
@@ -198,7 +60,7 @@ export default function ResultsPage() {
             </div>
           )}
 
-          {MAJORITY_MATCHES.length > 0 && (
+          {majorityMatches.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-muted-foreground" />
@@ -208,17 +70,19 @@ export default function ResultsPage() {
                 Most of your group liked these options
               </p>
               <div className="space-y-3">
-                {MAJORITY_MATCHES.map((restaurant) => (
+                {majorityMatches.map((restaurant) => (
                   <RestaurantResult
                     key={restaurant.id}
                     restaurant={restaurant}
+                    numUsers={numUsers}
+                    isPerfectMatch={false}
                   />
                 ))}
               </div>
             </div>
           )}
 
-          {PERFECT_MATCHES.length === 0 && MAJORITY_MATCHES.length === 0 && (
+          {perfectMatches.length === 0 && majorityMatches.length === 0 && (
             <Card className="p-8 text-center space-y-4">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
                 <Users className="w-8 h-8 text-muted-foreground" />
@@ -246,5 +110,64 @@ export default function ResultsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function RestaurantResult({
+  restaurant,
+  isPerfectMatch,
+  numUsers,
+}: {
+  restaurant: RestaurantMatch;
+  isPerfectMatch: boolean;
+  numUsers: number;
+}) {
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex gap-4 p-4">
+        <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+          <img
+            src={restaurant.image || "/placeholder.svg"}
+            alt={restaurant.data.displayName.text}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="space-y-1">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="font-semibold leading-tight">
+                {restaurant.data.displayName.text}
+              </h3>
+              {isPerfectMatch && (
+                <PartyPopper className="w-5 h-5 text-primary flex-shrink-0" />
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {parseTypes(restaurant.data.types).map((type) => (
+                <Badge variant="secondary" className="text-xs" key={type}>
+                  {type}
+                </Badge>
+              ))}
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Star className="w-3 h-3 fill-primary text-primary" />
+                <span>{restaurant.data.rating}</span>
+              </div>
+              {restaurant.data.priceLevel && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <DollarSign className="w-3 h-3" />
+                  <span>{restaurant.data.priceLevel}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs">
+            <Users className="w-3 h-3 text-primary" />
+            <span className="font-medium">
+              {restaurant.votes.length}/{numUsers} members liked this
+            </span>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
