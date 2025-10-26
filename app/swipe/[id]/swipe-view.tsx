@@ -7,13 +7,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-
 export type SwipeRestaurant = {
   id: string;
   name: string;
   image?: string;
   cuisine?: string;
-  priceRange?: number;
+  priceRange?: string;
   rating?: number;
   distance?: string;
   hours?: string;
@@ -81,8 +80,9 @@ export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
 
       <main className="flex-1 p-4 flex items-center justify-center">
         <div className="max-w-md w-full aspect-[3/4] relative">
-          {restaurants.slice(currentIndex, currentIndex + 2).map(
-            (restaurant, index) => (
+          {restaurants
+            .slice(currentIndex, currentIndex + 2)
+            .map((restaurant, index) => (
               <RestaurantCard
                 key={restaurant.id}
                 restaurant={{
@@ -93,7 +93,8 @@ export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
                   rating: restaurant.rating ?? 4.0,
                   distance: restaurant.distance ?? "N/A",
                   hours: restaurant.hours ?? "N/A",
-                  image: restaurant.image ?? "/placeholder.svg?height=400&width=600",
+                  image:
+                    restaurant.image ?? "/placeholder.svg?height=400&width=600",
                 }}
                 onSwipe={handleSwipe}
                 style={{
@@ -101,8 +102,7 @@ export function SwipeView({ restaurants }: { restaurants: SwipeRestaurant[] }) {
                   scale: 1 - index * 0.05,
                 }}
               />
-            ),
-          )}
+            ))}
         </div>
       </main>
 

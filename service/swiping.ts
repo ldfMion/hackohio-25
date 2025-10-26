@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { addUserToSquad, getSquad } from "./squad";
-import { SupabaseClient } from "@supabase/supabase-js";
 import { getRestaurants } from "@/lib/places";
+import { getSavedRestaurants, saveRestaurants } from "./restaurant";
 
 export async function processSwipingStart(squadId: string) {
   const supabase = await createClient();
@@ -22,8 +22,8 @@ export async function processSwipingStart(squadId: string) {
   console.log(newRestaurants);
   const addedRestaurants = await saveRestaurants(
     supabase,
-    newRestaurants,
-    squadId
+    newRestaurants.map((r) => ({ id: r.id, data: r })),
+    squadId,
   );
   console.log("added restaurants");
   console.log(addedRestaurants);
